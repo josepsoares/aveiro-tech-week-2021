@@ -1,41 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { animated, useTransition, config } from '@react-spring/web';
 
-interface AppProps {}
+import Routes from './routes/routes';
+import ScrollToTop from './routes/ScrollToTop';
+import Footer from './components/Footer';
 
-function App({}: AppProps) {
-  // Create the count state.
-  const [count, setCount] = useState(0);
-  // Create the counter (+1 every second).
-  useEffect(() => {
-    const timer = setTimeout(() => setCount(count + 1), 1000);
-    return () => clearTimeout(timer);
-  }, [count, setCount]);
-  // Return the App component.
+const App = () => {
+  // Transition between routes
+  const location = useLocation();
+
+  const transitions = useTransition(location, {
+    from: { position: 'absolute' as any, opacity: 0, display: 'none' },
+    enter: { position: 'static' as any, opacity: 1, display: 'block' },
+    leave: { position: 'absolute' as any, opacity: 0, display: 'none' },
+    config: { duration: 1000, mass: 1, tension: 280, friction: 60 },
+  });
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <p>
-          Page has been open for <code>{count}</code> seconds.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
+    <>
+      <ScrollToTop />
+      <div className="min-h-screen overflow-x-hidden">
+        {transitions((props, item) => (
+          <animated.main
+            style={{
+              display: props.display,
+              opacity: props.opacity,
+              position: props.position,
+            }}
           >
-            Learn React
-          </a>
-        </p>
-      </header>
-    </div>
+            <Routes location={item} />
+          </animated.main>
+        ))}
+        <Footer />
+      </div>
+    </>
   );
-}
+};
 
 export default App;
